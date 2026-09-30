@@ -1,0 +1,30 @@
+[Unit]
+Description=Bandwidth Hub - Low-Spec VPS Bandwidth Sharing Manager & Dashboard
+After=network.target docker.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/bandwidth-hub
+ExecStart=/usr/bin/python3 /opt/bandwidth-hub/server.py 8888
+# Nếu sử dụng Go binary đã build, bỏ comment dòng dưới và comment dòng trên:
+# ExecStart=/opt/bandwidth-hub/bandwidth-hub -port 8888 -config /opt/bandwidth-hub/config.json
+
+Restart=always
+RestartSec=5s
+
+# Bảo vệ tài nguyên tối đa cho VPS 1-2GB RAM (Cgroups resource limits)
+MemoryAccounting=true
+MemoryMax=350M
+MemoryHigh=300M
+CPUAccounting=true
+CPUQuota=85%
+
+# Tối ưu logging systemd để không tràn đĩa SSD VPS
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=bandwidth-hub
+
+[Install]
+WantedBy=multi-user.target
